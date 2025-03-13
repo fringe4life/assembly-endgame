@@ -1,16 +1,30 @@
 import { useEffect, useRef, useState } from "react"
+import { useGameContext } from "../store/endgame-context-provider";
 
 
 
 
-const useCountdown = (endTime: number, gameOver: boolean, isPlaying: boolean) => {
-    const [timer, setTimer] = useState<number>(endTime);
+const useCountdown = () => {
+
+    const {isPlaying, gameOver, difficulty, setGameLost} = useGameContext()
+    const [timer, setTimer] = useState<number>(difficulty);
 
     const timerRef = useRef<number | null>(null)
 
     if(timer === 0 || gameOver  ) {
+        
+        
         timerRef.current && clearTimeout(timerRef.current);
     }
+
+    useEffect(() => {
+        if(timer === 0){ 
+            setGameLost(true )
+            console.log("made it into the timer === 0")
+        }
+    }, [timer,setGameLost])
+
+    
 
     useEffect(() => {
         timerRef.current = setTimeout(() => {

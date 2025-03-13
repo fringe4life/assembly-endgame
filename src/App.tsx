@@ -3,7 +3,7 @@ import Header from "./components/Header"
 import LANGUAGES from "./languages"
 import FlexWrap from "./components/FlexWrap"
 import Key from "./components/Key";
-import { type  MouseEventHandler, useRef,  } from "react";
+import { type  MouseEventHandler, useEffect, useRef,  } from "react";
 import {  getRandomWord, isButton } from "./utils";
 import GuessLetter from "./components/GuessLetter";
 import NewGame from "./components/NewGame";
@@ -44,10 +44,13 @@ function App() {
 
   
   const lastGuessWrong = lastGuess && !word.includes(lastGuess) 
+  console.log(gameLost, " gameLost")
+  useEffect(() => {
+    setGameLost(prevGameLost => prevGameLost || wrongGuessCount >= attemptsLeft )
+    setIsPlaying(prevPlaying => gameOver ? false : prevPlaying);
+    console.log("useEffect app")
+  }, [setGameLost, setIsPlaying, gameOver, wrongGuessCount, attemptsLeft])
 
-  setGameLost(wrongGuessCount >= attemptsLeft)
-
-  setIsPlaying(prevPlaying => gameOver ? false : prevPlaying);
  
   /**
    * @abstract used to focus the newGame button once gameOver
@@ -56,6 +59,7 @@ function App() {
   
   const newGame: MouseEventHandler<HTMLButtonElement> = () => {
     setGameLost(false)
+    setIsPlaying(false)
     setWord(getRandomWord());
     setGuessedLetters([]);
   }
