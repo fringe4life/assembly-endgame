@@ -22,5 +22,6 @@ interface SpanProps
     VariantProps<typeof span> {}
 
 export default function GuessLetter({intent, className, children}:SpanProps){
+    
     return  <span className={span({intent, className})}>{children}</span>
 }

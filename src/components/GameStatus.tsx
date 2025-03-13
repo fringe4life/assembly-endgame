@@ -12,10 +12,10 @@ const gameStatus = cva({
 });
 
 /**
- * interface for Key class
+ * interface for Game Status function
  */
 interface ButtonProps
-    extends React.ButtonHTMLAttributes<HTMLDivElement>,
+    extends React.HTMLAttributes<HTMLDivElement>,
     VariantProps<typeof gameStatus> {}
 
 export default function GameStatus({className, intent, children}: ButtonProps){

@@ -1,15 +1,26 @@
-import { createContext, useContext, useState, type MouseEventHandler } from "react";
-import { getRandomWord, isButton } from "../utils";
-
-
+import { createContext, useContext, useState } from "react";
+import { getRandomWord } from "../utils";
+import LANGUAGES from "../languages";
 /**
  * type for the context
  */
 type GameContextProvider = {
+    isPlaying: boolean;
+    setIsPlaying: React.Dispatch<React.SetStateAction<boolean>>;
     guessedLetters: string[];
     word: string;
-    handleKeyClick: MouseEventHandler<HTMLButtonElement>;
-    handleNewGame: MouseEventHandler<HTMLButtonElement>;
+    difficulty: DifficultyType;
+    
+    setDifficulty: React.Dispatch<React.SetStateAction<DifficultyType>>;
+    setWord: React.Dispatch<React.SetStateAction<string>>;
+    setGuessedLetters: React.Dispatch<React.SetStateAction<string[]>>;
+    gameLost: boolean;
+    setGameLost: React.Dispatch<React.SetStateAction<boolean>>;
+    gameWon: boolean;
+    gameOver: boolean;
+    attemptsLeft: number;
+    wrongGuessCount: number;
+    lastGuess: string;
 }
 
 const GameContext = createContext<GameContextProvider | null>(null)
@@ -21,45 +32,50 @@ type ContextProps = {
     children: React.ReactNode;
 }
 
+export type DifficultyType = 30 | 45 | 60
+
 const ContextProvider: React.FC<ContextProps> = ({children}) => {
+
+    
+
+    const [isPlaying, setIsPlaying] = useState<boolean>(false)
 
     const [guessedLetters, setGuessedLetters] = useState<string[]>([]);
     const [word, setWord] = useState<string>(() => getRandomWord());
+    const [difficulty, setDifficulty] = useState<DifficultyType>(45);
 
-
-    /**
-       * @abstract used to get a new word and reset guessedLetters
-       * @param e event triggered by user click
-       */
-    const handleNewGame: MouseEventHandler<HTMLButtonElement> = () => {
-        setWord(getRandomWord());
-        setGuessedLetters([]);
-    }
+    const attemptsLeft = LANGUAGES.length - 1;
+    const gameWon = word.split("").every(letter => guessedLetters.includes(letter));
     
-    /**
-     * @abstract used to check if the letter is in the word user is trying to guess
-     * @param e the event triggered by the users click
-     * @returns void
-     */
-    const handleKeyClick: MouseEventHandler<HTMLButtonElement> = (e): void => {
-        const target = e.target as HTMLElement
-        if(!isButton(target)){
-            return
-        }
-        const letter = target.textContent as string;
-        // need to check if it is part(s) of word
-        setGuessedLetters((prevLetters) => 
-                prevLetters.includes(letter) ? prevLetters : [...prevLetters, letter]
-        )
-    }
+    const wrongGuessCount = guessedLetters.filter(letter => !word.includes(letter)).length;
+
+    const [gameLost, setGameLost] = useState<boolean>(false);
+
+    
+    const gameOver = gameLost || gameWon;
+
+    const lastGuess = guessedLetters[guessedLetters.length - 1];
+    
+    
     /**
      * the value for use by the GameContext
      */
     const ctx = {
         guessedLetters,
         word,
-        handleKeyClick,
-        handleNewGame,
+        difficulty,
+        isPlaying,
+        setIsPlaying,
+        setDifficulty,
+        setWord,
+        setGuessedLetters,
+        gameLost,
+        gameWon,
+        gameOver,
+        attemptsLeft,
+        wrongGuessCount,
+        setGameLost,
+        lastGuess
     } satisfies GameContextProvider
     return <GameContext.Provider value={ctx}>
         {children}
@@ -71,9 +87,9 @@ const ContextProvider: React.FC<ContextProps> = ({children}) => {
  * @returns the context provided by the GameContext
  */
 export function useGameContext(): GameContextProvider {
-    const game = useContext(GameContext)
-    if(game === null) throw new Error("please refresh the page!")
-    return game
+    const game = useContext(GameContext);
+    if(game === null) throw new Error("please refresh the page!");
+    return game;
 }
 
-export default ContextProvider
+export default ContextProvider;

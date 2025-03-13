@@ -10,25 +10,27 @@
 	--color-violet-500: #7a5ea7;
 	--color-sky-400: #11b5e5;
 
-	--animate-top: top 500ms 1;
-	--animate-right: right 750ms 1;
-	--animate-left: left 1s 1;
-	--animate-bottom: bottom 1.25s 1;
+	--breakpoint-xs: 25rem;
+
+	--animate-top: top ease-in 500ms 1;
+	--animate-right: right ease-out 750ms 1;
+	--animate-left: left ease-in-out 1s 1;
+	--animate-bottom: bottom ease-in 1.25s 1;
 
 	@keyframes top {
-		0% {
+		from {
 			transform: translateY(-100%);
 		}
-		100% {
+		to {
 			transform: translateY(0px);
 		}
 	}
 
 	@keyframes right {
-		0% {
+		from {
 			transform: translateX(100%);
 		}
-		100% {
+		to {
 			transform: translateX(0px);
 		}
 	}
@@ -45,6 +47,9 @@
 	@keyframes bottom {
 		from {
 			transform: translateY(100%);
+		}
+		to {
+			transform: translateY(0px);
 		}
 	}
 }

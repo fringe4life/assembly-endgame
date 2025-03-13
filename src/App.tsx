@@ -3,8 +3,8 @@ import Header from "./components/Header"
 import LANGUAGES from "./languages"
 import FlexWrap from "./components/FlexWrap"
 import Key from "./components/Key";
-import {  useRef,  } from "react";
-import {  isButton } from "./utils";
+import { type  MouseEventHandler, useRef,  } from "react";
+import {  getRandomWord, isButton } from "./utils";
 import GuessLetter from "./components/GuessLetter";
 import NewGame from "./components/NewGame";
 import  {  useGameContext } from "./store/endgame-context-provider";
@@ -12,9 +12,11 @@ import GameStatus from "./components/GameStatus";
 import { getFarewellText } from "./utils";
 import AudioPlayer from 'react-h5-audio-player';
 import evilLaughter from "./assets/evilLaughter.mp3"
+import Difficulty from "./components/Difficulty";
 
-import { useWindowSize } from 'react-use'
-import Confetti from 'react-confetti'
+import { useWindowSize } from 'react-use';
+import Confetti from 'react-confetti';
+import GameInfo from "./components/GameInfo";
 
 const ALPHABET = "abcdefghijklmnopqrstuvwxyz";
 
@@ -24,38 +26,43 @@ const ALPHABET = "abcdefghijklmnopqrstuvwxyz";
  */
 function App() {
   // get the context from endgame-context-provider
-  const {word, guessedLetters, handleKeyClick, handleNewGame} = useGameContext()
+  const {
+    isPlaying, 
+    setIsPlaying,
+    word, 
+    guessedLetters, 
+    setGuessedLetters, 
+    setWord,
+    gameLost,
+    gameWon,
+    wrongGuessCount,
+    gameOver,
+    setGameLost,
+    lastGuess,
+    attemptsLeft
+  } = useGameContext()
 
+  
+  const lastGuessWrong = lastGuess && !word.includes(lastGuess) 
+
+  setGameLost(wrongGuessCount >= attemptsLeft)
+
+  setIsPlaying(prevPlaying => gameOver ? false : prevPlaying);
+ 
+  /**
+   * @abstract used to focus the newGame button once gameOver
+   */
   const newGameRef = useRef<HTMLButtonElement | null>(null);
-
-  // derived state about amount of guesses, whether game is over
-  const attemptsLeft = LANGUAGES.length - 1;
-  const attemptsRemaining = attemptsLeft - guessedLetters.length;
-  const gameWon = word.split("").every(letter => guessedLetters.includes(letter))
-
-  const wrongGuessCount =
-        guessedLetters.filter(letter => !word.includes(letter)).length
   
-  const gameLost = wrongGuessCount >= attemptsLeft;
-
-  const gameOver = gameLost || gameWon
-  const lastGuess = guessedLetters[guessedLetters.length - 1]
-  const lastGuessWrong = lastGuess && !word.includes(lastGuess)
-  
-  // checks for whether derived state works
-  console.log(word, " word")
-  console.log(lastGuessWrong, " last guess wrong")
-
-  console.log(gameWon, " game won")
-  console.log(gameLost, " game lost")
-  console.log(attemptsRemaining, " attempts left")
-  
-
-
+  const newGame: MouseEventHandler<HTMLButtonElement> = () => {
+    setGameLost(false)
+    setWord(getRandomWord());
+    setGuessedLetters([]);
+  }
   /**
    * focuses the new game button for better user experience
    */
-  if(gameOver){
+  if( gameOver ){
     if (newGameRef?.current && isButton(newGameRef?.current)) newGameRef.current.focus();
   }
 
@@ -63,26 +70,22 @@ function App() {
    * @abstract the current word being guessed
    */
   const currentWordJSX = word.split("").map((letter, index) => {
-    const intent = guessedLetters.includes(letter) ? word.includes(letter) ? "correct" : "wrong" : "unguessed"
-    
+    let intent: "correct" | "wrong" | "unguessed" = guessedLetters.includes(letter) ? word.includes(letter) ? "correct" : "wrong" : "unguessed"
+    intent = gameLost && !guessedLetters.includes(letter) && word.includes(letter) ? "wrong" : intent
     /* eslint-disable lint/suspicious/noArrayIndexKey */
     return <GuessLetter intent={intent} key={index}>{letter}</GuessLetter>
   })
-
 
   /**
    * @abstract the letters of the alphabet as an alphabet of buttons
    * for the user to click
    */
   const keyboardJSX = ALPHABET.split("").map(letter => {
-    /**
-     * used to determine styling by cva
-     */
     const intent = guessedLetters.includes(letter) ?
                       word.includes(letter) ?
                         "correct" : "wrong" : "unpressed"
     return (
-      <Key intent={intent} onClick={handleKeyClick} key={letter}>{letter}</Key>
+      <Key intent={intent}  key={letter}>{letter}</Key>
     )
   })
 
@@ -141,15 +144,21 @@ function App() {
           height={height}
         />}
 
+        {!isPlaying && <Difficulty  />}
+
         {gameStatusJSX}
 
         <FlexWrap>{languagesJSX}</FlexWrap>
 
+        {isPlaying && <FlexWrap className="max-w-100 justify-between">
+          <GameInfo />
+        </FlexWrap>}
+
         <FlexWrap className="max-w-120 pb-9">{currentWordJSX}</FlexWrap>
 
-        <FlexWrap className="gap-2 max-w-120">{keyboardJSX}</FlexWrap>
+        <FlexWrap className="gap-2 max-w-120 ">{keyboardJSX}</FlexWrap>
 
-        {gameOver && <FlexWrap><NewGame ref={newGameRef} onClick={handleNewGame}>new game</NewGame></FlexWrap>}
+        {gameOver && <FlexWrap><NewGame ref={newGameRef} onClick={newGame}>new game</NewGame></FlexWrap>}
 
         {gameLost && <AudioPlayer src={evilLaughter} autoPlay={true} className="invisible -translate-x-full" />}
 
