@@ -124,14 +124,6 @@ function App() {
         <p className="text-bold  font-effect-fire-animation pl-1.5 self-start animate-right ">_start:</p>
             <p className="pl-3 self-start animate-right">mov ecx, 5; Counter set to 5</p>
             <p className="pl-3 self-start animate-right">xor eax, eax; Initialize sum to 0</p>
-        <p className="text-bold pl-1.5  font-effect-fire-animation self-start animate-left ">loop_start:</p>
-            <p className="pl-3 self-start animate-left">add eax, ecx; Add counter to sum</p>
-            <p className="pl-3 self-start animate-left">dec ecx; Decrement counter</p>
-            <p className="pl-3 self-start animate-left">jnz loop_start; Repeat loop until ECX == 0</p>
-            <p className="pl-3 self-start animate-left">mov [sum], eax; Store the sum in memory</p>
-            <p className="pl-3 self-start animate-bottom">mov eax, 1; Exit system call</p>
-            <p className="pl-3 self-start animate-bottom">xor ebx, ebx; Exit code 0</p>
-            <p className="pl-3 self-start animate-bottom">int 0x80</p>
         <p className="animate-bottom font-effect-fire-animation">And you thought React was bad enough!! 🤣</p>
     </GameStatus>
   }
@@ -164,7 +156,7 @@ function App() {
 
         {gameOver && <FlexWrap><NewGame ref={newGameRef} onClick={newGame}>new game</NewGame></FlexWrap>}
 
-        {gameLost && <AudioPlayer src={evilLaughter} autoPlay={true} className="invisible -translate-x-full" />}
+        {gameLost && <AudioPlayer volume={0.25} src={evilLaughter} autoPlay={true} className="invisible -translate-x-full" />}
 
       </main>
   )
