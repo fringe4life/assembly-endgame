@@ -44,11 +44,9 @@ function App() {
 
   
   const lastGuessWrong = lastGuess && !word.includes(lastGuess) 
-  console.log(gameLost, " gameLost")
   useEffect(() => {
     setGameLost(prevGameLost => prevGameLost || wrongGuessCount >= attemptsLeft )
     setIsPlaying(prevPlaying => gameOver ? false : prevPlaying);
-    console.log("useEffect app")
   }, [setGameLost, setIsPlaying, gameOver, wrongGuessCount, attemptsLeft])
 
  
@@ -109,19 +107,19 @@ function App() {
     gameStatusJSX = <GameStatus intent="informational"><p>{getFarewellText(LANGUAGES[wrongGuessCount - 1].name)}</p></GameStatus>
   } else if (gameWon){
     gameStatusJSX = <GameStatus intent="win">
-        <p className="text-xl ">You win!</p>
-        <p  className="">Well done! 🎉</p>
+        <p className="text-xl">You win!</p>
+        <p>Well done! 🎉</p>
       </GameStatus>
   } else if (gameLost){
     gameStatusJSX = <GameStatus intent="lose">
-        <p className="text-xl ">Sorry, you lost.</p>
+        <p className="text-xl">Sorry, you lost.</p>
         <p className="">You lose! Better start learning Assembly 😭</p>
         <p className="text-bold  font-effect-fire-animation pl-1.5  self-start animate-top">section .data</p>
           <p className="pl-3 self-start animate-top">sum dd 0; Variable to store the sum</p>
 
         <p className="text-bold font-effect-fire-animation self-start animate-top pl-1.5">section .text</p>
-            <p className="pl-3 self-start animate-right">global _start</p>
-        <p className="text-bold  font-effect-fire-animation pl-1.5 self-start animate-right ">_start:</p>
+            <p className="pl-3 self-start animate-left">global _start</p>
+        <p className="text-bold  font-effect-fire-animation pl-1.5 self-start animate-left ">_start:</p>
             <p className="pl-3 self-start animate-right">mov ecx, 5; Counter set to 5</p>
             <p className="pl-3 self-start animate-right">xor eax, eax; Initialize sum to 0</p>
         <p className="animate-bottom font-effect-fire-animation">And you thought React was bad enough!! 🤣</p>
@@ -156,7 +154,7 @@ function App() {
 
         {gameOver && <FlexWrap><NewGame ref={newGameRef} onClick={newGame}>new game</NewGame></FlexWrap>}
 
-        {gameLost && <AudioPlayer volume={0.25} src={evilLaughter} autoPlay={true} className="invisible -translate-x-full" />}
+        {gameLost && <AudioPlayer volume={0.125} src={evilLaughter} autoPlay={true} className="invisible -translate-x-full" />}
 
       </main>
   )

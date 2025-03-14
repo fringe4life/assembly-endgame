@@ -12,15 +12,12 @@ const useCountdown = () => {
     const timerRef = useRef<number | null>(null)
 
     if(timer === 0 || gameOver  ) {
-        
-        
         timerRef.current && clearTimeout(timerRef.current);
     }
 
     useEffect(() => {
         if(timer === 0){ 
-            setGameLost(true )
-            console.log("made it into the timer === 0")
+            setGameLost(true)
         }
     }, [timer,setGameLost])
 
@@ -30,7 +27,6 @@ const useCountdown = () => {
         timerRef.current = setTimeout(() => {
             if (timer > 0 && !gameOver && isPlaying) {
                 setTimer(prevTime => prevTime - 1);
-                console.log(timer)
             } 
             else {
                 timerRef.current && clearTimeout(timerRef.current)
