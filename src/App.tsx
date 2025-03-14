@@ -144,7 +144,7 @@ function App() {
 
         <FlexWrap>{languagesJSX}</FlexWrap>
 
-        {isPlaying && <FlexWrap className="max-w-100 justify-between">
+        {isPlaying && <FlexWrap className="max-w-100 justify-around">
           <GameInfo />
         </FlexWrap>}
 
@@ -154,7 +154,7 @@ function App() {
 
         {gameOver && <FlexWrap><NewGame ref={newGameRef} onClick={newGame}>new game</NewGame></FlexWrap>}
 
-        {gameLost && <AudioPlayer volume={0.125} src={evilLaughter} autoPlay={true} className="invisible -translate-x-full" />}
+        {gameLost && <AudioPlayer volume={0.075} src={evilLaughter} autoPlay={true} className="invisible -translate-x-full" />}
 
       </main>
   )
