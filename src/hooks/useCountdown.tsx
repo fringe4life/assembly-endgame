@@ -1,49 +1,36 @@
-import { useEffect, useRef, useState } from "react"
-import { useGameContext } from "../store/endgame-context-provider";
-
-
-
+import { useEffect, useRef, useState, useEffectEvent } from "react";
+import { useGameContext } from "./useGameContext";
 
 const useCountdown = () => {
+  const { isPlaying, gameOver, difficulty, setGameLost } = useGameContext();
+  const [timer, setTimer] = useState<number>(difficulty);
 
-    const {isPlaying, gameOver, difficulty, setGameLost} = useGameContext()
-    const [timer, setTimer] = useState<number>(difficulty);
+  const timerRef = useRef<number | null>(null);
 
-    const timerRef = useRef<number | null>(null)
+  const onTimerEnd = useEffectEvent(() => {
+    setGameLost(true);
+  });
 
-    if(timer === 0 || gameOver  ) {
-        timerRef.current && clearTimeout(timerRef.current);
-    }
+  useEffect(() => {
+    timerRef.current = setTimeout(() => {
+      if (timer > 0 && !gameOver && isPlaying) {
+        setTimer((prevTime) => prevTime - 1);
+      } else {
+        onTimerEnd();
+        clearTimeout(timerRef?.current ?? undefined);
+      }
+    }, 1000);
+    return () => {
+      clearTimeout(timerRef?.current ?? undefined);
+    };
+  }, [gameOver, timer, isPlaying]);
 
-    useEffect(() => {
-        if(timer === 0){ 
-            setGameLost(true)
-        }
-    }, [timer,setGameLost])
+  function newTimer(time: number) {
+    if (timerRef.current) clearTimeout(timerRef.current);
+    setTimer(time);
+  }
 
-    
+  return { timer, newTimer };
+};
 
-    useEffect(() => {
-        timerRef.current = setTimeout(() => {
-            if (timer > 0 && !gameOver && isPlaying) {
-                setTimer(prevTime => prevTime - 1);
-            } 
-            else {
-                timerRef.current && clearTimeout(timerRef.current)
-            }
-        }, 1000);
-        return () => {
-            timerRef.current && clearTimeout(timerRef.current)
-        };
-    }, [gameOver,  timer, isPlaying])
-
-    function newTimer(time:number){
-        if( timerRef.current ) clearTimeout(timerRef.current);
-        setTimer(time)
-    }
-
-    return {timer, newTimer}
-}
-
-
-export default useCountdown
+export default useCountdown;

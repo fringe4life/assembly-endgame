@@ -1,17 +1,18 @@
+import useCountdown from "../hooks/useCountdown";
+import { useGameContext } from "../hooks/useGameContext";
 
-import useCountdown from "../hooks/useCountdown"
-import { useGameContext } from "../store/endgame-context-provider"
+export default function GameInfo() {
+  const { attemptsLeft, wrongGuessCount } = useGameContext();
 
-export default function GameInfo(){
-
-    const { attemptsLeft,   wrongGuessCount} = useGameContext()
-
-    const {timer} = useCountdown();
-    return (
-        <>
-            <p className="text-white text-xl text-center ">{attemptsLeft - wrongGuessCount} tries left</p>
-            <p className="text-center text-xl text-white font-bold animate-top">Seconds left: {timer}</p>
-        </>
-        )
-
+  const { timer } = useCountdown();
+  return (
+    <>
+      <p className="text-center text-xl text-white">
+        {attemptsLeft - wrongGuessCount} tries left
+      </p>
+      <p className="animate-top text-center text-xl font-bold text-white">
+        Seconds left: {timer}
+      </p>
+    </>
+  );
 }
