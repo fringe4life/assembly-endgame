@@ -4,12 +4,12 @@ import Button from "./Button";
 import clsx from "clsx";
 
 export default function Difficulty() {
-  const { difficulty, setDifficulty, isPlaying } = useGameContext();
+  const { difficulty, updateDifficulty, isPlaying } = useGameContext();
   /**
    * @abstract handles change in difficulty
    */
   function handleDifficulty(difficulty: DifficultyType) {
-    setDifficulty(difficulty);
+    updateDifficulty(difficulty);
   }
   return (
     <section className="mx-auto mt-4 max-w-80">

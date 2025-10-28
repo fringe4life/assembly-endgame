@@ -2,24 +2,29 @@ import { useEffect, useRef, useState, useEffectEvent } from "react";
 import { useGameContext } from "./useGameContext";
 
 const useCountdown = () => {
-  const { isPlaying, gameOver, difficulty, setGameLost } = useGameContext();
-  const [timer, setTimer] = useState<number>(difficulty);
-
-  const timerRef = useRef<number | null>(null);
+  const { isPlaying, gameOver, difficulty, updateTimerLost } = useGameContext();
+  const [timer, setTimer] = useState<number>(() => difficulty);
+  const timerRef = useRef<number>(null);
 
   const onTimerEnd = useEffectEvent(() => {
-    setGameLost(true);
+    updateTimerLost(true);
   });
 
   useEffect(() => {
+    // Only start timer when game is actually playing
+    if (!isPlaying || gameOver) {
+      return;
+    }
+
     timerRef.current = setTimeout(() => {
-      if (timer > 0 && !gameOver && isPlaying) {
+      if (timer > 0) {
         setTimer((prevTime) => prevTime - 1);
       } else {
         onTimerEnd();
         clearTimeout(timerRef?.current ?? undefined);
       }
     }, 1000);
+
     return () => {
       clearTimeout(timerRef?.current ?? undefined);
     };

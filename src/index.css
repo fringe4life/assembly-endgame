@@ -16,47 +16,142 @@
   --animate-right: right ease-out 750ms 1;
   --animate-left: left ease-in-out 1s 1;
   --animate-bottom: bottom ease-in 1.25s 1;
+}
 
-  @keyframes top {
-    from {
-      transform: translateY(-100%);
-    }
-    to {
-      transform: translateY(0px);
-    }
+@keyframes --top {
+  from {
+    transform: translateY(-100%);
   }
-
-  @keyframes right {
-    from {
-      transform: translateX(100%);
-    }
-    to {
-      transform: translateX(0px);
-    }
-  }
-
-  @keyframes left {
-    from {
-      transform: translateX(-100%);
-    }
-    to {
-      transform: translateX(0px);
-    }
-  }
-
-  @keyframes bottom {
-    from {
-      transform: translateY(100%);
-    }
-    to {
-      transform: translateY(0px);
-    }
+  to {
+    transform: translateY(0px);
   }
 }
 
+@keyframes --right {
+  from {
+    transform: translateX(100%);
+  }
+  to {
+    transform: translateX(0px);
+  }
+}
+
+@keyframes --left {
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: translateX(0px);
+  }
+}
+
+@keyframes --bottom {
+  from {
+    transform: translateY(100%);
+  }
+  to {
+    transform: translateY(0px);
+  }
+}
 :root {
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+/* View Transition Classes */
+
+/* Morph - for keyboard keys (300ms) */
+::view-transition-group(.morph) {
+  animation-duration: 300ms;
+  animation-timing-function: ease-out;
+}
+
+/* Slide down - for word letters */
+::view-transition-old(.slide-down) {
+  animation: --slide-up 300ms ease-out;
+}
+
+::view-transition-new(.slide-down) {
+  animation: --slide-down 300ms ease-out;
+}
+
+@keyframes --slide-down {
+  from {
+    transform: translateY(-100%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+
+@keyframes --slide-up {
+  from {
+    transform: translateY(0);
+  }
+  to {
+    transform: translateY(100%);
+  }
+}
+
+/* Slide in left - for GameInfo enter */
+::view-transition-new(.slide-in-left) {
+  animation: --slide-in-left 400ms ease-out;
+}
+
+/* Slide out right - for GameInfo exit */
+::view-transition-old(.slide-out-right) {
+  animation: --slide-out-right 200ms ease-in;
+}
+
+@keyframes --slide-in-left {
+  from {
+    transform: translateX(-100%) skewX(-5deg);
+  }
+  to {
+    transform: translateX(0) skewX(0deg);
+  }
+}
+
+@keyframes --slide-out-right {
+  from {
+    transform: translateX(0) skewX(0deg);
+  }
+  to {
+    transform: translateX(100%) skewX(-10deg);
+  }
+}
+
+/* Cross-fade - for languages and game status */
+::view-transition-group(*) {
+  animation-duration: 400ms;
+  animation-timing-function: cubic-bezier(0.075, 0.82, 0.165, 1);
+}
+
+/* Fade in/out - for difficulty */
+::view-transition-new(.fade-in) {
+  animation-name: --fade-in;
+}
+
+::view-transition-old(.fade-out) {
+  animation-name: --fade-out;
+}
+
+@keyframes --fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes --fade-out {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
 }

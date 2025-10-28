@@ -14,7 +14,7 @@ const span = cva({
 /**
  * interface for Key class
  */
-interface SpanProps
+export interface SpanProps
   extends React.HTMLAttributes<HTMLSpanElement>,
     VariantProps<typeof span> {}
 

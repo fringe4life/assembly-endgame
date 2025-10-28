@@ -1,9 +1,9 @@
 # Assembly Endgame 🎮
 
-[![React](https://img.shields.io/badge/React-19.2.0-61DAFB?logo=react)](https://react.dev)
+[![React](https://img.shields.io/badge/React-19.3.0--canary-61DAFB?logo=react)](https://react.dev)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.9.3-3178C6?logo=typescript)](https://typescriptlang.org)
-[![Vite](https://img.shields.io/badge/Vite-7.1.11-646CFF?logo=vite)](https://vite.dev)
-[![TailwindCSS](https://img.shields.io/badge/Tailwind-4.1.14-38BDF8?logo=tailwindcss)](https://tailwindcss.com)
+[![Vite](https://img.shields.io/badge/Vite-7.1.12-646CFF?logo=vite)](https://vite.dev)
+[![TailwindCSS](https://img.shields.io/badge/Tailwind-4.1.16-38BDF8?logo=tailwindcss)](https://tailwindcss.com)
 [![ESLint](https://img.shields.io/badge/ESLint-9.38.0-4B32C3?logo=eslint)](https://eslint.org)
 [![Prettier](https://img.shields.io/badge/Prettier-3.6.2-F7B93E?logo=prettier)](https://prettier.io)
 [![Husky](https://img.shields.io/badge/Husky-9.1.7-42B983?logo=git)](https://typicode.github.io/husky)
@@ -14,6 +14,7 @@ A word-guessing game built with React 19, featuring the React Compiler for autom
 
 - **Word Guessing Game**: Guess programming language names before time runs out
 - **Difficulty Levels**: Easy (60s), Medium (45s), Hard (30s)
+- **Smooth Animations**: ViewTransition API for buttery-smooth UI state changes
 - **Visual Feedback**: Languages "catch fire" as you make mistakes
 - **Win/Loss States**: Confetti on win, Assembly code taunts on loss
 - **Audio Effects**: Evil laughter when you lose
@@ -23,7 +24,7 @@ A word-guessing game built with React 19, featuring the React Compiler for autom
 
 ### Core
 
-- **React 19.2** - Latest React with concurrent features
+- **React 19.3 Canary** - Latest React with ViewTransition API
 - **TypeScript 5.9** - Type safety and developer experience
 - **Vite 7** - Lightning-fast dev server and build tool
 
@@ -61,21 +62,42 @@ Used for background rendering at lower priority instead of conditional mounting:
 - Avoids expensive mount/unmount cycles
 - Smoother transitions
 
+### ViewTransition
+
+Smooth, animated transitions between UI states using the browser's View Transition API:
+
+```tsx
+<ViewTransition>
+  <FlexWrap>{keyboardJSX}</FlexWrap>
+</ViewTransition>
+```
+
+**Implemented transitions:**
+
+- **Keyboard letters**: 300ms shared element morph when changing from unpressed → correct/wrong
+- **Word letters**: Slide down into place with `translateY` animation
+- **Timer digits**: Individual digit animations - old digits slide down and fade out, new digits slide in from above
+- **GameInfo**: Slide in from left with small skew, slide out to right with larger skew (faster)
+- **Languages, GameStatus, Difficulty**: Cross-fade transitions
+
+**How it works:**
+
+- All state updates wrapped in `startTransition` via context functions
+- CSS `view-transition-name` properties enable shared element animations
+- Custom keyframes for enter/exit animations with skew and translation
+
 ### useEffectEvent
 
 Stable event callbacks that don't trigger effect re-runs:
 
 ```tsx
-const updateGameState = useEffectEvent(
-  (gameOver: boolean, wrongGuessCount: number) => {
-    setGameLost((prev) => prev || wrongGuessCount >= attemptsLeft);
-    setIsPlaying((prev) => (gameOver ? false : prev));
-  }
-);
+const onTimerEnd = useEffectEvent(() => {
+  updateTimerLost(true);
+});
 
 useEffect(() => {
-  updateGameState(gameOver, wrongGuessCount, attemptsLeft);
-}, [gameOver, wrongGuessCount, attemptsLeft]);
+  // Timer logic with stable callback
+}, [gameOver, timer, isPlaying]);
 ```
 
 ### React Compiler
@@ -143,11 +165,12 @@ src/
 
 ## 🎨 State Management
 
-Uses React Context API with custom hooks:
+Uses React Context API with derived state patterns:
 
 - **Game State**: Win/loss status, guessed letters, current word
 - **Timer State**: Countdown timer with difficulty-based duration
 - **UI State**: Playing status, difficulty selection
+- **Derived State**: `gameLost` and `isPlaying` computed from source state (no useEffect needed)
 
 ## 🧪 Code Quality
 
@@ -184,6 +207,13 @@ Husky + lint-staged ensure code quality before commits:
 - `husky@9` - Git hooks made easy
 - `lint-staged@16` - Run linters/formatters on staged files
 - Configured via `lint-staged.config.ts` with TypeScript types
+
+### Performance Optimizations
+
+- **Lazy Loading**: AudioPlayer and Confetti components load only when needed
+- **Derived State**: Eliminates unnecessary useEffect chains
+- **React Compiler**: Automatic memoization without manual optimization
+- **ViewTransitions**: Smooth animations with browser-native API
 
 ## 🎮 How It Works
 

@@ -26,7 +26,7 @@ interface ButtonProps
     VariantProps<typeof button> {}
 
 const Key = ({ className, intent, children }: ButtonProps) => {
-  const { isPlaying, setIsPlaying, setGuessedLetters } = useGameContext();
+  const { isPlaying, updateIsPlaying, addGuessedLetter } = useGameContext();
 
   /**
    * @abstract used to check if the letter is in the word user is trying to guess
@@ -34,16 +34,16 @@ const Key = ({ className, intent, children }: ButtonProps) => {
    * @returns void
    */
   const handleKeyClick: MouseEventHandler<HTMLButtonElement> = (e): void => {
-    if (!isPlaying) setIsPlaying(true);
+    if (!isPlaying) {
+      updateIsPlaying(true);
+    }
     const target = e.target as HTMLElement;
     if (!isButton(target)) {
       return;
     }
     const letter = target.textContent as string;
-    // need to check if it is part(s) of word
-    setGuessedLetters((prevLetters) =>
-      prevLetters.includes(letter) ? prevLetters : [...prevLetters, letter]
-    );
+    // Add guessed letter (triggers ViewTransition)
+    addGuessedLetter(letter);
   };
   return (
     <button
