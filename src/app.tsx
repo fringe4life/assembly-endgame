@@ -1,31 +1,27 @@
-import Badge from "./components/Badge";
-import Header from "./components/Header";
-import LANGUAGES from "./languages";
-import FlexWrap from "./components/FlexWrap";
-import Key from "./components/Key";
 import {
   Activity,
   type MouseEventHandler,
+  useDeferredValue,
   useEffect,
   useRef,
   ViewTransition,
-  useDeferredValue,
 } from "react";
+import { css, cx } from "../styled-system/css";
+import Badge from "./components/badge";
+import Difficulty from "./components/difficulty";
+import FlexWrap from "./components/flex-wrap";
+import GameInfo from "./components/game-info";
+import GameStatusInformational from "./components/game-status-informational";
+import GameStatusLose from "./components/game-status-lose";
+import GameStatusWin from "./components/game-status-win";
+import GuessLetter, { type GuessLetterProps } from "./components/guess-letter";
+import Header from "./components/header";
+import Key, { type KeyProps } from "./components/key";
+import NewGame from "./components/new-game";
+import useCountdown from "./hooks/use-countdown";
+import { useGameContext } from "./hooks/use-game-context";
+import LANGUAGES from "./languages";
 import { getRandomWord, isButton } from "./utils";
-import GuessLetter, { type SpanProps } from "./components/GuessLetter";
-import NewGame from "./components/NewGame";
-import { useGameContext } from "./hooks/useGameContext";
-import GameStatusInformational from "./components/GameStatusInformational";
-import GameStatusWin from "./components/GameStatusWin";
-import GameStatusLose from "./components/GameStatusLose";
-import AudioPlayer from "react-h5-audio-player";
-import evilLaughter from "./assets/evilLaughter.mp3";
-import Difficulty from "./components/Difficulty";
-
-import { useWindowSize } from "react-use";
-import Confetti from "react-confetti";
-import GameInfo from "./components/GameInfo";
-import useCountdown from "./hooks/useCountdown";
 
 const ALPHABET = "abcdefghijklmnopqrstuvwxyz";
 
@@ -51,6 +47,13 @@ function App() {
     updateTimerLost,
   } = useGameContext();
 
+  useEffect(() => {
+    if (newGameRef?.current && isButton(newGameRef?.current) && gameOver) {
+      newGameRef.current.focus();
+    }
+  }, [gameOver]);
+
+  // get ability to set new timer
   const { newTimer } = useCountdown();
 
   const lastGuessWrong = lastGuess && !word.includes(lastGuess);
@@ -59,8 +62,6 @@ function App() {
   const currentLanguageName =
     wrongGuessCount > 0 ? LANGUAGES[wrongGuessCount - 1]?.name : "";
   const languageName = useDeferredValue(currentLanguageName);
-
-  // No longer needed - gameLost and isPlaying are now derived state
 
   /**
    * @abstract used to focus the newGame button once gameOver
@@ -75,27 +76,22 @@ function App() {
     newTimer(difficulty);
   };
 
-  useEffect(() => {
-    if (newGameRef?.current && isButton(newGameRef?.current))
-      newGameRef.current.focus();
-  }, [gameOver]);
-
   /**
    * @abstract the current word being guessed
    */
   const currentWordJSX = word.split("").map((letter, index) => {
-    let intent: Exclude<SpanProps["intent"], undefined> =
-      guessedLetters.includes(letter)
-        ? word.includes(letter)
-          ? "correct"
-          : "wrong"
-        : "unguessed";
-    intent =
-      gameLost && !guessedLetters.includes(letter) && word.includes(letter)
-        ? "wrong"
-        : intent;
+    let intent: Exclude<GuessLetterProps["intent"], undefined> = "unguessed";
+
+    if (!guessedLetters.includes(letter)) {
+      intent = "unguessed";
+    } else if (word.includes(letter)) {
+      intent = "correct";
+    } else {
+      intent = "wrong";
+    }
 
     return (
+      // biome-ignore lint/suspicious/noArrayIndexKey: index is used as key
       <GuessLetter intent={intent} key={index}>
         {letter}
       </GuessLetter>
@@ -107,11 +103,14 @@ function App() {
    * for the user to click
    */
   const keyboardJSX = ALPHABET.split("").map((letter) => {
-    const intent = guessedLetters.includes(letter)
-      ? word.includes(letter)
-        ? "correct"
-        : "wrong"
-      : "unpressed";
+    let intent: Exclude<KeyProps["intent"], undefined> = "unguessed";
+    if (guessedLetters.includes(letter)) {
+      if (word.includes(letter)) {
+        intent = "correct";
+      } else {
+        intent = "wrong";
+      }
+    }
     return (
       <Key intent={intent} key={letter}>
         {letter}
@@ -122,10 +121,13 @@ function App() {
   /**
    * @abstract the list of languages found in languages.ts
    */
-  const languagesJSX = LANGUAGES.map(({ name, ...rest }, index) => {
+  const languagesJSX = LANGUAGES.map(({ name, bgToken, textToken }, index) => {
     const onFire = index < wrongGuessCount ? "font-effect-fire-animation" : "";
     return (
-      <Badge className={onFire} style={{ ...rest }} key={name}>
+      <Badge
+        className={cx(css({ bgColor: bgToken, color: textToken }), onFire)}
+        key={name}
+      >
         {name}
       </Badge>
     );
@@ -134,18 +136,12 @@ function App() {
   // Determine which game status to show
   const showInformational = lastGuessWrong && !gameOver;
 
-  const { width, height } = useWindowSize();
-
   return (
     <main>
       <Header />
 
-      <Activity mode={gameWon ? "visible" : "hidden"}>
-        <Confetti width={width} height={height} />
-      </Activity>
-
       <ViewTransition enter="fade-in" exit="fade-out" name="difficulty">
-        <Activity mode={!isPlaying ? "visible" : "hidden"}>
+        <Activity mode={isPlaying ? "hidden" : "visible"}>
           <Difficulty />
         </Activity>
       </ViewTransition>
@@ -165,47 +161,51 @@ function App() {
           <GameStatusLose />
         </Activity>
       </ViewTransition>
-      <ViewTransition update="cross-fade" name="languages">
+      <ViewTransition name="languages" update="cross-fade">
         <FlexWrap>{languagesJSX}</FlexWrap>
       </ViewTransition>
 
       <ViewTransition
         enter="slide-in-left"
         exit="slide-out-right"
-        update="morph"
         name="game-info"
       >
         <Activity mode={isPlaying ? "visible" : "hidden"}>
-          <FlexWrap className="max-w-100 justify-around">
+          <FlexWrap
+            className={css({ maxW: "280", justifyContent: "space-between" })}
+          >
             <GameInfo />
           </FlexWrap>
         </Activity>
       </ViewTransition>
 
-      <ViewTransition share="slide-down" name="word-letters">
-        <FlexWrap className="max-w-120 pb-9">{currentWordJSX}</FlexWrap>
+      <ViewTransition name="word-letters" share="slide-down">
+        <FlexWrap className={css({ maxW: "280", pb: "9" })}>
+          {currentWordJSX}
+        </FlexWrap>
       </ViewTransition>
 
-      <ViewTransition share="morph" name="keyboard">
-        <FlexWrap className="max-w-120 gap-2">{keyboardJSX}</FlexWrap>
+      <ViewTransition name="keyboard" share="morph">
+        <FlexWrap
+          className={css({
+            gap: "2",
+            justifyContent: "center",
+            mt: "0",
+            mx: "0",
+            maxW: "full",
+          })}
+        >
+          {keyboardJSX}
+        </FlexWrap>
       </ViewTransition>
 
       <Activity mode={gameOver ? "visible" : "hidden"}>
         <FlexWrap>
-          <NewGame ref={newGameRef} onClick={newGame}>
+          <NewGame onClick={newGame} ref={newGameRef}>
             new game
           </NewGame>
         </FlexWrap>
       </Activity>
-
-      {gameLost && (
-        <AudioPlayer
-          volume={0.00000000000000001}
-          src={evilLaughter}
-          autoPlay={true}
-          className="invisible -translate-x-full"
-        />
-      )}
     </main>
   );
 }

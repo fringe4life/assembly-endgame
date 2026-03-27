@@ -1,11 +1,12 @@
 # Assembly Endgame 🎮
 
 [![React](https://img.shields.io/badge/React-19.3.0--canary-61DAFB?logo=react)](https://react.dev)
-[![TypeScript](https://img.shields.io/badge/TypeScript-5.9.3-3178C6?logo=typescript)](https://typescriptlang.org)
-[![Vite](https://img.shields.io/badge/Vite-7.1.12-646CFF?logo=vite)](https://vite.dev)
-[![TailwindCSS](https://img.shields.io/badge/Tailwind-4.1.16-38BDF8?logo=tailwindcss)](https://tailwindcss.com)
-[![ESLint](https://img.shields.io/badge/ESLint-9.38.0-4B32C3?logo=eslint)](https://eslint.org)
-[![Prettier](https://img.shields.io/badge/Prettier-3.6.2-F7B93E?logo=prettier)](https://prettier.io)
+[![TypeScript](https://img.shields.io/badge/TypeScript-6.0.2-3178C6?logo=typescript)](https://typescriptlang.org)
+[![Vite](https://img.shields.io/badge/Vite-8.0.3-646CFF?logo=vite)](https://vite.dev)
+[![Panda CSS](https://img.shields.io/badge/Panda%20CSS-1.9.1-FF6B4A?logo=css3)](https://panda-css.com)
+[![Biome](https://img.shields.io/badge/Biome-2.4.7-60A5FA?logo=biome)](https://biomejs.dev)
+[![Ultracite](https://img.shields.io/badge/Ultracite-7.3.2-7C3AED)](https://github.com/haydenbleasel/ultracite)
+[![React Compiler](https://img.shields.io/badge/React%20Compiler-1.0.0-149ECA?logo=react)](https://react.dev/learn/react-compiler)
 [![Husky](https://img.shields.io/badge/Husky-9.1.7-42B983?logo=git)](https://typicode.github.io/husky)
 
 A word-guessing game built with React 19, featuring the React Compiler for automatic optimization and modern React patterns including `Activity` components and `useEffectEvent`.
@@ -25,21 +26,19 @@ A word-guessing game built with React 19, featuring the React Compiler for autom
 ### Core
 
 - **React 19.3 Canary** - Latest React with ViewTransition API
-- **TypeScript 5.9** - Type safety and developer experience
-- **Vite 7** - Lightning-fast dev server and build tool
+- **TypeScript 6** - Type safety and developer experience
+- **Vite 8** - Lightning-fast dev server and build tool
 
 ### Styling
 
-- **TailwindCSS v4** - Utility-first CSS framework
-- **CVA** - Class variance authority for component variants
-- **tailwind-merge** - Merge Tailwind classes intelligently
+- **Panda CSS** - CSS-in-JS with generated `styled-system` utilities and recipes
+- **CVA-style recipes** - `cva` from Panda for component variants (`styled-system/css`)
 
 ### Build & Tooling
 
-- **React Compiler** - Automatic memoization and optimization
-- **ESLint 9** - Flat config with React-specific rules
-- **Prettier 3.6** - Code formatter with Tailwind CSS class sorting
-- **TypeScript ESLint** - Type-aware linting
+- **React Compiler** - `@vitejs/plugin-react` with `@rolldown/plugin-babel` and `reactCompilerPreset()`
+- **Biome + Ultracite** - Linting and formatting via `ultracite check` / `ultracite fix` (extends Biome with project presets)
+- **lint-staged** - Runs `ultracite fix` on staged files
 
 ## 🎯 React 19 Features
 
@@ -102,14 +101,21 @@ useEffect(() => {
 
 ### React Compiler
 
-Automatic optimization via Babel plugin - no manual `useMemo`/`useCallback` needed:
+Automatic optimization via Rolldown Babel preset - no manual `useMemo`/`useCallback` needed:
 
 ```typescript
 // vite.config.ts
-react({
-  babel: {
-    plugins: [["babel-plugin-react-compiler"]],
-  },
+import babel from "@rolldown/plugin-babel";
+import react, { reactCompilerPreset } from "@vitejs/plugin-react";
+import { defineConfig } from "vite";
+
+export default defineConfig({
+  plugins: [
+    react(),
+    babel({
+      presets: [reactCompilerPreset()],
+    }),
+  ],
 });
 ```
 
@@ -132,35 +138,29 @@ bun run build
 # Preview production build
 bun run preview
 
-# Lint code
-bun run lint
+# Lint / format (Biome via Ultracite)
+bun run check
+bun run fix
+
+# Typecheck only
+bun run type
 ```
 
 ## 📁 Project Structure
 
 ```
 src/
-├── components/       # UI components
-│   ├── Badge.tsx    # Language badges
-│   ├── Button.tsx   # Generic button
-│   ├── Difficulty.tsx # Difficulty selector
-│   ├── GameInfo.tsx # Timer and attempts display
-│   ├── GameStatus.tsx # Win/loss messages
-│   ├── GuessLetter.tsx # Letter display
-│   ├── Header.tsx   # Game header
-│   ├── Key.tsx      # Keyboard key component
-│   └── NewGame.tsx  # New game button
-├── hooks/           # Custom React hooks
-│   ├── useCountdown.tsx # Game timer logic
-│   └── useGameContext.tsx # Context hook
-├── store/           # State management
-│   ├── endgame-context-provider.tsx # Game state provider
-│   └── game-context.tsx # Context definition
-├── assets/          # Static assets (audio)
-├── App.tsx          # Main app component
-├── languages.ts     # Programming languages data
-├── utils.ts         # Utility functions
-└── words.ts         # Word list
+├── components/              # UI components (badge, button, difficulty, game-*, etc.)
+├── hooks/                   # useCountdown, useGameContext
+├── store/                   # game-context, endgame-context-provider, use-game-context
+├── assets/                  # Static assets (audio)
+├── app.tsx                  # Main app
+├── main.tsx                 # Entry
+├── languages.ts             # Programming languages data
+├── utils.ts                 # Utilities
+└── words.ts                 # Word list
+styled-system/               # Generated by Panda CSS (panda codegen)
+panda.config.ts              # Panda theme and static CSS
 ```
 
 ## 🎨 State Management
@@ -174,39 +174,15 @@ Uses React Context API with derived state patterns:
 
 ## 🧪 Code Quality
 
-### ESLint Flat Config
+### Biome and Ultracite
 
-Modern ESLint 9 configuration with:
-
-- `eslint-plugin-react` - React-specific rules
-- `eslint-plugin-react-hooks` - Hooks rules with React Compiler support
-- `eslint-plugin-react-refresh` - Fast refresh validation
-- `typescript-eslint` - TypeScript-aware linting
-- `eslint-config-prettier` - Disables conflicting ESLint rules
-
-### React Compiler Linting
-
-The `eslint-plugin-react-hooks` now includes React Compiler rules:
-
-- `react-hooks/rules-of-hooks` - Enforces Rules of Hooks
-- `react-hooks/exhaustive-deps` - Validates effect dependencies
-- Compiler-specific rules for refs, purity, and optimization
-
-### Prettier with Tailwind
-
-Prettier automatically formats code and sorts Tailwind CSS classes:
-
-- `prettier-plugin-tailwindcss` - Sorts classes in recommended order
-- Works in JSX className, function calls (clsx, cva), and template literals
-- Configured via `prettier.config.ts` for type safety
+- **`biome.jsonc`** extends Ultracite presets (`ultracite/core`, `ultracite/react`, Biome layers)
+- **`bun run check`** - `ultracite check`
+- **`bun run fix`** - `ultracite fix`
 
 ### Pre-commit Hooks
 
-Husky + lint-staged ensure code quality before commits:
-
-- `husky@9` - Git hooks made easy
-- `lint-staged@16` - Run linters/formatters on staged files
-- Configured via `lint-staged.config.ts` with TypeScript types
+Husky + lint-staged run Ultracite on staged files (`lint-staged.config.ts`).
 
 ### Performance Optimizations
 
@@ -225,21 +201,24 @@ Husky + lint-staged ensure code quality before commits:
 
 ## 🔧 Configuration Files
 
-- `vite.config.ts` - Vite configuration with React Compiler
-- `tsconfig.json` - TypeScript project references
-- `eslint.config.ts` - ESLint flat config with Prettier integration
-- `prettier.config.ts` - Prettier configuration with Tailwind plugin
-- `lint-staged.config.ts` - Pre-commit hook configuration
+- `vite.config.ts` - Vite, React plugin, React Compiler (Rolldown Babel)
+- `tsconfig.json` / `tsconfig.app.json` - TypeScript project references
+- `biome.jsonc` - Biome + Ultracite extends
+- `panda.config.ts` - Panda CSS theme and codegen
+- `postcss.config.cjs` - Panda PostCSS plugin
+- `lint-staged.config.ts` - Pre-commit Ultracite fix
 
 ## 📝 Scripts
 
-| Command           | Description               |
-| ----------------- | ------------------------- |
-| `bun run dev`     | Start development server  |
-| `bun run build`   | Build for production      |
-| `bun run lint`    | Run ESLint                |
-| `bun run format`  | Format code with Prettier |
-| `bun run preview` | Preview production build  |
+| Command              | Description                          |
+| -------------------- | ------------------------------------ |
+| `bun run dev`        | Start development server             |
+| `bun run build`      | Typecheck and build for production   |
+| `bun run preview`    | Preview production build             |
+| `bun run check`      | Ultracite / Biome check              |
+| `bun run fix`        | Ultracite / Biome fix                |
+| `bun run type`       | `tsc --noEmit`                       |
+| `bun run prepare`    | Panda codegen + Husky (after install) |
 
 ## 🤝 Contributing
 

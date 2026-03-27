@@ -1,39 +1,39 @@
 import { useState, useTransition } from "react";
-import { getRandomWord } from "../utils";
+import type { DifficultyType } from "../components/difficulty";
+import { MEDIUM_DIFFICULTY } from "../components/difficulty";
 import LANGUAGES from "../languages";
+import { getRandomWord } from "../utils";
 import { GameContext } from "./game-context";
 /**
  * type for the context
  */
-export type GameContextProvider = {
-  isPlaying: boolean;
-  updateIsPlaying: (value: boolean | ((prev: boolean) => boolean)) => void;
-  guessedLetters: string[];
-  word: string;
+export interface GameContextProvider {
+  addGuessedLetter: (letter: string) => void;
+  attemptsLeft: number;
   difficulty: DifficultyType;
+  gameLost: boolean;
+  gameOver: boolean;
+  gameWon: boolean;
+  guessedLetters: string[];
+  isPending: boolean;
+  isPlaying: boolean;
+  lastGuess: string | undefined;
+  resetGuessedLetters: () => void;
 
   updateDifficulty: (value: DifficultyType) => void;
-  updateWord: (value: string) => void;
-  addGuessedLetter: (letter: string) => void;
-  resetGuessedLetters: () => void;
-  gameLost: boolean;
+  updateIsPlaying: (value: boolean) => void;
   updateTimerLost: (value: boolean) => void;
-  gameWon: boolean;
-  gameOver: boolean;
-  attemptsLeft: number;
+  updateWord: (value: string) => void;
+  word: string;
   wrongGuessCount: number;
-  lastGuess: string;
-  isPending: boolean;
-};
+}
 
 /**
  * Type for the context as it needs to render the children passed into it
  */
-type ContextProps = {
+interface ContextProps {
   children: React.ReactNode;
-};
-
-export type DifficultyType = 30 | 45 | 60;
+}
 
 const ContextProvider = ({ children }: ContextProps) => {
   const [isPending, startTransition] = useTransition();
@@ -41,7 +41,9 @@ const ContextProvider = ({ children }: ContextProps) => {
   const [isPlaying, setIsPlaying] = useState<boolean>(false);
   const [guessedLetters, setGuessedLetters] = useState<string[]>([]);
   const [word, setWord] = useState<string>(() => getRandomWord());
-  const [difficulty, setDifficulty] = useState<DifficultyType>(45);
+  const [difficulty, setDifficulty] = useState<DifficultyType>(
+    () => MEDIUM_DIFFICULTY
+  );
   const [timerLost, setTimerLost] = useState<boolean>(false);
 
   const attemptsLeft = LANGUAGES.length - 1;
@@ -56,7 +58,7 @@ const ContextProvider = ({ children }: ContextProps) => {
   // Derived state: gameLost is true when wrong guesses >= attempts OR timer runs out
   const gameLost = wrongGuessCount >= attemptsLeft || timerLost;
   const gameOver = gameLost || gameWon;
-  const lastGuess = guessedLetters[guessedLetters.length - 1];
+  const lastGuess = guessedLetters.at(-1);
 
   // Derived state: isPlaying becomes false when game is over
   const derivedIsPlaying = gameOver ? false : isPlaying;
@@ -64,7 +66,7 @@ const ContextProvider = ({ children }: ContextProps) => {
   /**
    * Transition-wrapped update functions
    */
-  const updateIsPlaying = (value: boolean | ((prev: boolean) => boolean)) => {
+  const updateIsPlaying = (value: boolean) => {
     startTransition(() => {
       setIsPlaying(value);
     });

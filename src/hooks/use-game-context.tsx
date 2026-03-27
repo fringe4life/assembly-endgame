@@ -1,5 +1,5 @@
 import { use } from "react";
-import { type GameContextProvider } from "../store/endgame-context-provider";
+import type { GameContextProvider } from "../store/endgame-context-provider";
 import { GameContext } from "../store/game-context";
 /**
  * @abstract checks to ensure the context is not null and throws an error if it is.
@@ -8,6 +8,8 @@ import { GameContext } from "../store/game-context";
  */
 export function useGameContext(): GameContextProvider {
   const game = use(GameContext);
-  if (game === null) throw new Error("please refresh the page!");
+  if (game === null) {
+    throw new Error("please refresh the page!");
+  }
   return game;
 }

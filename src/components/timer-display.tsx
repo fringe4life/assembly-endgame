@@ -1,12 +1,20 @@
 import { ViewTransition } from "react";
-import useCountdown from "../hooks/useCountdown";
+import { css } from "../../styled-system/css";
+import useCountdown from "../hooks/use-countdown";
 
 export default function TimerDisplay() {
   const { timer } = useCountdown();
 
   return (
     <ViewTransition enter="digit-enter" exit="digit-exit" name="timer-display">
-      <p className="text-center text-xl font-bold text-white">
+      <p
+        className={css({
+          textAlign: "center",
+          fontSize: "xl",
+          fontWeight: "bold",
+          color: "white",
+        })}
+      >
         Seconds left: {timer}
       </p>
     </ViewTransition>

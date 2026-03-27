@@ -1,47 +1,66 @@
-export default [
+export type LanguageTokenName =
+  | "HTML"
+  | "CSS"
+  | "JavaScript"
+  | "React"
+  | "TypeScript"
+  | "Node.js"
+  | "Python"
+  | "Ruby"
+  | "Assembly";
+
+export interface LanguageConfig {
+  bgToken: string;
+  name: LanguageTokenName;
+  textToken: string;
+}
+
+const LANGUAGES: LanguageConfig[] = [
   {
     name: "HTML",
-    backgroundColor: "#5621a8",
-    color: "#F9F4DA",
+    bgToken: "orange.700",
+    textToken: "white",
   },
   {
     name: "CSS",
-    backgroundColor: "#328AF1",
-    color: "#F9F4DA",
+    bgToken: "blue.500",
+    textToken: "white",
   },
   {
     name: "JavaScript",
-    backgroundColor: "#f9f4da",
-    color: "#1E1E1E",
+    bgToken: "yellow.200",
+    textToken: "neutral.900",
   },
   {
     name: "React",
-    backgroundColor: "#2ED3E9",
-    color: "#1E1E1E",
+    bgToken: "cyan.400",
+    textToken: "neutral.900",
   },
   {
     name: "TypeScript",
-    backgroundColor: "#298EC6",
-    color: "#F9F4DA",
+    bgToken: "blue.600",
+    textToken: "white",
   },
   {
     name: "Node.js",
-    backgroundColor: "#599137",
-    color: "#F9F4DA",
+    bgToken: "green.700",
+    textToken: "white",
   },
   {
     name: "Python",
-    backgroundColor: "#23e200",
-    color: "#1E1E1E",
+    bgToken: "lime.400",
+    textToken: "neutral.900",
   },
   {
     name: "Ruby",
-    backgroundColor: "#D02B2B",
-    color: "#F9F4DA",
+    bgToken: "red.600",
+    textToken: "white",
   },
   {
     name: "Assembly",
-    backgroundColor: "#2D519F",
-    color: "#F9F4DA",
+    bgToken: "indigo.700",
+    textToken: "white",
   },
 ];
+
+export default LANGUAGES;

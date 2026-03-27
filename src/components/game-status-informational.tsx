@@ -1,5 +1,5 @@
-import GameStatus from "./GameStatus";
 import { getFarewellText } from "../utils";
+import GameStatus from "./game-status";
 
 interface GameStatusInformationalProps {
   languageName: string;

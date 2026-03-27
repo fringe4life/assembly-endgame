@@ -1,10 +1,7 @@
 import type { Configuration } from "lint-staged";
 
 const config: Configuration = {
-  // Lint and fix TypeScript/JavaScript files
-  "*.{ts,tsx,js,jsx}": ["eslint --fix", "prettier --write"],
-  // Format other files
-  "*.{json,md,css,html}": "prettier --write",
+  "*.{js,jsx,ts,tsx,json,jsonc,css,scss,md,mdx}": ["npx ultracite fix"],
 };
 
 export default config;

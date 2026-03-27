@@ -1,3 +1,5 @@
+import { css, cx } from "../../styled-system/css";
+
 export default function Badge({
   children,
   className,
@@ -5,7 +7,10 @@ export default function Badge({
 }: React.ComponentPropsWithoutRef<"span">) {
   return (
     <span
-      className={`text-md rounded-sm p-1 font-bold drop-shadow-md ${className}`}
+      className={cx(
+        css({ rounded: "sm", p: "1", fontWeight: "bold" }),
+        className
+      )}
       {...rest}
     >
       {children}

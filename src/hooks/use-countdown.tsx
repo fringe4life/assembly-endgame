@@ -1,5 +1,5 @@
-import { useEffect, useRef, useState, useEffectEvent } from "react";
-import { useGameContext } from "./useGameContext";
+import { useEffect, useEffectEvent, useRef, useState } from "react";
+import { useGameContext } from "./use-game-context";
 
 const useCountdown = () => {
   const { isPlaying, gameOver, difficulty, updateTimerLost } = useGameContext();
@@ -31,7 +31,9 @@ const useCountdown = () => {
   }, [gameOver, timer, isPlaying]);
 
   function newTimer(time: number) {
-    if (timerRef.current) clearTimeout(timerRef.current);
+    if (timerRef.current) {
+      clearTimeout(timerRef.current);
+    }
     setTimer(time);
   }
 

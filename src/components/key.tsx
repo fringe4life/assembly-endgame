@@ -1,31 +1,49 @@
-import { cva, type VariantProps } from "cva";
-import { useGameContext } from "../hooks/useGameContext";
 import type { MouseEventHandler } from "react";
+import { cva, type RecipeVariant } from "../../styled-system/css";
+import { useGameContext } from "../hooks/use-game-context";
 import { isButton } from "../utils";
 
 const button = cva({
-  base: "text-neutral-900  uppercase font-semibold w-10 h-10 rounded-md",
+  base: {
+    color: "neutral.900",
+    textTransform: "uppercase",
+    fontWeight: "semibold",
+    w: "10",
+    aspectRatio: "1",
+    rounded: "md",
+  },
   variants: {
     intent: {
-      unpressed:
-        "bg-amber-400 hover:scale-110 cursor-pointer active:translate-y-0 hover:-translate-y-0.5 hover:bg-amber-500 hover:shadow-sm hover:shadow-gray-500 scale-105",
-      correct: "bg-green-600 cursor-not-allowed scale-0.9 ",
-      wrong: "bg-red-500 cursor-not-allowed scale-0.9",
+      unguessed: {
+        bgColor: "amber.400",
+        _hover: {
+          translateY: "-2px",
+          bgColor: "amber.500",
+          shadow: "sm",
+          shadowColor: "gray.500",
+        },
+        cursor: "pointer",
+        _active: {
+          translateY: "0",
+        },
+      },
+      correct: { bgColor: "green.600", cursor: "not-allowed", scale: "0.9" },
+      wrong: { bgColor: "red.500", cursor: "not-allowed", scale: "0.9" },
     },
   },
   defaultVariants: {
-    intent: "unpressed",
+    intent: "unguessed",
   },
 });
 
 /**
  * interface for Key class
  */
-interface ButtonProps
+export interface KeyProps
   extends React.ButtonHTMLAttributes<HTMLButtonElement>,
-    VariantProps<typeof button> {}
+    RecipeVariant<typeof button> {}
 
-const Key = ({ className, intent, children }: ButtonProps) => {
+const Key = ({ intent, children }: KeyProps) => {
   const { isPlaying, updateIsPlaying, addGuessedLetter } = useGameContext();
 
   /**
@@ -47,9 +65,9 @@ const Key = ({ className, intent, children }: ButtonProps) => {
   };
   return (
     <button
-      type="button"
+      className={button({ intent })}
       onClick={handleKeyClick}
-      className={button({ intent, className })}
+      type="button"
     >
       {children}
     </button>
